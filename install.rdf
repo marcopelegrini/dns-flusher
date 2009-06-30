@@ -4,14 +4,9 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>{7d575baa-b543-11dc-8314-0800200c9a66}</em:id>
 		<em:name>DNS Flusher</em:name>
-		<em:version>1.5</em:version>
+		<em:version>1.6</em:version>
 		<em:description>DNS Flusher</em:description>
-		<em:file>
-			<Description about="urn:mozilla:extension:file:dnsflusher.jar">
-			<em:package>content/</em:package>
-			<em:skin>skin/</em:skin>
-			</Description>
-		</em:file>
+		<em:iconURL>chrome://dnsFlusher/skin/icon32.png</em:iconURL>
 		<em:targetApplication>
 			<Description>
 			<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
