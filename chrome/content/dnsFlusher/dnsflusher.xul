@@ -2,9 +2,10 @@
 <overlay id="dnsflusher"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     
-    <script src="dnsflusher.js"/>
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsflusher.js"/>
     
     <statusbar id="status-bar">
-        <statusbarpanel id="dnsflusher_panel" label="DNS Flusher" onclick="dnsFluher.refreshdns();"/>
+        <statusbarpanel id="dnsflusher_panel" label="DNS Flusher" onclick="dnsFlusher.eventDispatcher(event);"/>
     </statusbar>
 </overlay>

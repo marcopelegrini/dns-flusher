@@ -7,14 +7,14 @@ const FLUSHER_NOTIFY_LOCATION = Components.interfaces.nsIWebProgress.NOTIFY_LOCA
 const dnsFlusherName = dnsFlusherName;
 
 window.addEventListener("load", function(){
-    dnsFluher.init();
+    dnsFlusher.init();
 }, false);
 window.addEventListener("unload", function(){
-    dnsFluher.destroy();
+    dnsFlusher.destroy();
 }, false);
 
 
-var dnsFluher = {
+var dnsFlusher = {
 
     init: function(){
         this.flusherdnscache = new Array();
@@ -166,6 +166,15 @@ var dnsFluher = {
                     ioService.offline = false;
                 }
             }
+        }
+    },
+    
+    eventDispatcher: function(event){
+        if (event.button < 2) {
+            dnsFlusher.refreshdns();
+        }
+        else {
+            Prefs.open();
         }
     }
 };
