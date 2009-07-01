@@ -24,7 +24,7 @@
         <groupbox orient="vertical">
             <caption label="General"/>
             <checkbox label="Reload current page after refresh DNS" preference="reload-page"/>
-            <checkbox label="Use status bar efect on refresh" preference="label-efect"/>
+            <checkbox label="Use status bar effect on refresh" preference="label-efect"/>
 			<spacer height="10"/>
             <hbox>
 				<label value="Change status bar IP color: "/>
