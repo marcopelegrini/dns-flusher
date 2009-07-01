@@ -4,15 +4,17 @@ const FLUSHER_NOTIFY_LOCATION = Components.interfaces.nsIWebProgress.NOTIFY_LOCA
 //const IPV6_STATE_IS_DOCUMENT = Components.interfaces.nsIWebProgressListener.STATE_IS_DOCUMENT;
 //const IPV6_STATE_START = Components.interfaces.nsIWebProgressListener.STATE_START;
 
-const dnsFlusherName = dnsFlusherName;
+const dnsFlusherName = "DNS Flusher";
 
 window.addEventListener("load", function(){
     dnsFlusher.init();
+    dnsFlusher.loadPrefs();
 }, false);
 window.addEventListener("unload", function(){
     dnsFlusher.destroy();
 }, false);
 
+var reloadByUser = false;
 
 var dnsFlusher = {
 
@@ -26,6 +28,7 @@ var dnsFlusher = {
         this.Listener = {
             onLocationChange: function(aProgress, aRequest, aLocation){
                 try {
+                    Log.debug(aRequest);
                     if (aLocation && aLocation.host && (aLocation.scheme != 'chrome') && (aLocation.scheme != 'file')) {
                         this.parent.updatestatus(aLocation.host);
                     }
@@ -107,7 +110,9 @@ var dnsFlusher = {
     
     // update the statusbar panel
     updatestatus: function(host, byUser){
+        Log.debug(host, reloadByUser);
         if (!host) {
+            reloadByUser = false;
             return;
         }
         //Status bar label
@@ -118,12 +123,12 @@ var dnsFlusher = {
         if (ips.length) {
             var j = 0;
             var text = ips[j];
-            if (byUser) {
+            if (byUser || reloadByUser) {
                 text = "Flushed: " + text;
             }
             //Update label
             ipLabel.label = text;
-            if (byUser) {
+            if (byUser || reloadByUser) {
                 var x = 0;
                 for (var i = 0; i < 10; i++) {
                     setTimeout("document.getElementById('dnsflusher_panel').label = '" + text + "'", 1000 - x);
@@ -135,9 +140,11 @@ var dnsFlusher = {
         else {
             ipLabel.label = dnsFlusherName;
         }
+        reloadByUser = false;
     },
     
     refreshdns: function(){
+    
         //Service IO
         var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
         var backToOnline = false;
@@ -158,7 +165,14 @@ var dnsFlusher = {
             this.flusherdnscache = new Array();
             this.flusherrdnscache = new Array();
             
-            this.updatestatus(this.actualHost, true);
+            if (Prefs.getBool("reload-page")) {
+                var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
+                mainWindow.getBrowser().reload();
+                reloadByUser = true;
+            }
+            else {
+                this.updatestatus(this.actualHost, true);
+            }
         }
         finally {
             if (!backToOnline) {
@@ -176,5 +190,10 @@ var dnsFlusher = {
         else {
             Prefs.open();
         }
+    },
+    
+    loadPrefs: function(){
+        var color = Prefs.getString("label-color");
+        document.getElementById("dnsflusher_panel").setAttribute("style", "color:" + color + ";");
     }
 };

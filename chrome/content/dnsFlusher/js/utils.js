@@ -1,28 +1,28 @@
 /**
  * @author marcotulio
  */
-const console = Application.console;
-const logPreference = "log";
+const dFConsole = Application.console;
+const dFLogPreference = "log";
 
 var Log = {
     debug: function(string){
-        if (Prefs.getBool(logPreference)) {
-            console.log("[DEBUG] - " + string);
+        if (Prefs.getBool(dFLogPreference)) {
+            dFConsole.log("[DEBUG] - " + string);
         }
     },
     info: function(string){
-        if (Prefs.getBool(logPreference)) {
-            console.log("[INFO] - " + string);
+        if (Prefs.getBool(dFLogPreference)) {
+            dFConsole.log("[INFO] - " + string);
         }
     },
     warn: function(string){
-        if (Prefs.getBool(logPreference)) {
-            console.log("[WARN] - " + string);
+        if (Prefs.getBool(dFLogPreference)) {
+            dFConsole.log("[WARN] - " + string);
         }
     },
     error: function(string){
-        if (Prefs.getBool(logPreference)) {
-            console.log("[ERROR] - " + string);
+        if (Prefs.getBool(dFLogPreference)) {
+            dFConsole.log("[ERROR] - " + string);
         }
     }
 }

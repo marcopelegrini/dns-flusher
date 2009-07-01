@@ -3,6 +3,7 @@
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/optionsOverlay.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsflusher.js"/>
     
     <statusbar id="status-bar">

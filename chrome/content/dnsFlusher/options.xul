@@ -9,6 +9,7 @@
  id="dnsFlusher-settings"
  title="#change"
  buttons="accept,cancel"
+ ondialogcancel="Options.colorChanged();"
  type="prefwindow">
     
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
@@ -18,11 +19,16 @@
     <prefpane id="prefpane_general" label="Settings">
         <preferences>
             <preference id="label-color" name="extensions.dnsFlusher.label-color" type="unichar"/>
+            <preference id="reload-page" name="extensions.dnsFlusher.reload-page" type="bool"/>
         </preferences>
         <groupbox orient="horizontal">
             <caption label="Status bar IP color"/>
             <label value="Choose a color: "/>
             <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="Options.colorChanged();"/>
+        </groupbox>
+        <groupbox orient="vertical">
+            <caption label="Reload Page"/>
+            <checkbox label="Reload current page after refresh DNS" preference="reload-page"/>
         </groupbox>
     </prefpane>
 </prefwindow>
