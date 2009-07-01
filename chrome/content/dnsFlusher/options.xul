@@ -7,28 +7,29 @@
  xmlns:html="http://www.w3.org/1999/xhtml"
  windowtype="dnsFlusher:settings"
  id="dnsFlusher-settings"
- title="#change"
+ title="Settings"
  buttons="accept,cancel"
- ondialogcancel="Options.colorChanged();"
  type="prefwindow">
     
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/optionsOverlay.js"/>
     
-    <prefpane id="prefpane_general" label="Settings">
+    <prefpane id="prefpane_general" label="General">
         <preferences>
             <preference id="label-color" name="extensions.dnsFlusher.label-color" type="unichar"/>
             <preference id="reload-page" name="extensions.dnsFlusher.reload-page" type="bool"/>
+            <preference id="label-efect" name="extensions.dnsFlusher.label-efect" type="bool"/>
         </preferences>
-        <groupbox orient="horizontal">
-            <caption label="Status bar IP color"/>
-            <label value="Choose a color: "/>
-            <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="Options.colorChanged();"/>
-        </groupbox>
         <groupbox orient="vertical">
-            <caption label="Reload Page"/>
+            <caption label="General"/>
             <checkbox label="Reload current page after refresh DNS" preference="reload-page"/>
+            <checkbox label="Use status bar efect on refresh" preference="label-efect"/>
+			<spacer height="10"/>
+            <hbox>
+				<label value="Change status bar IP color: "/>
+                <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="Options.colorChanged();"/>
+            </hbox>
         </groupbox>
     </prefpane>
 </prefwindow>

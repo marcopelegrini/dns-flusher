@@ -23,12 +23,12 @@ var dnsFlusher = {
         this.flusherrdnscache = new Array();
         this.localip = null;
         this.flusherdnscache['none'] = new Array();
+        this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Ci.nsIDownloadManager);
         
         // shamelessly taken from flagfox extension 
         this.Listener = {
             onLocationChange: function(aProgress, aRequest, aLocation){
                 try {
-                    Log.debug(aRequest);
                     if (aLocation && aLocation.host && (aLocation.scheme != 'chrome') && (aLocation.scheme != 'file')) {
                         this.parent.updatestatus(aLocation.host);
                     }
@@ -123,19 +123,18 @@ var dnsFlusher = {
         if (ips.length) {
             var j = 0;
             var text = ips[j];
-            if (byUser || reloadByUser) {
-                text = "Flushed: " + text;
-            }
             //Update label
-            ipLabel.label = text;
-            if (byUser || reloadByUser) {
+            if ((byUser || reloadByUser) && Prefs.getBool("label-efect")){
+                text = "Flushed: " + text;
                 var x = 0;
                 for (var i = 0; i < 10; i++) {
                     setTimeout("document.getElementById('dnsflusher_panel').label = '" + text + "'", 1000 - x);
                     var text = text.substring(1);
                     x -= 150;
                 }
-            }
+            }else{
+				ipLabel.label = text;
+			}
         }
         else {
             ipLabel.label = dnsFlusherName;
@@ -144,7 +143,14 @@ var dnsFlusher = {
     },
     
     refreshdns: function(){
-    
+        //Check for active downloads
+        var activeDownloads = this.downloadManager.activeDownloadCount;
+        var strMsg = "There are downloads currently in progress.\nIf you flush the DNS now your downloads will be lost!\nDo you want to continue?\n";
+        
+        if (activeDownloads > 0 && !confirm(strMsg)) {
+            return false;
+        }
+        
         //Service IO
         var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
         var backToOnline = false;
