@@ -1,4 +1,4 @@
-pref("extensions.dnsFlusher.log", true);
+pref("extensions.dnsFlusher.log", false);
 
 pref("extensions.dnsFlusher.label-color", "#000000");
 pref("extensions.dnsFlusher.label-efect", true);
