@@ -4,30 +4,30 @@
 const dFConsole = Application.console;
 const dFLogPreference = "log";
 
-var Log = {
+var CTechLog = {
     debug: function(string){
-        if (Prefs.getBool(dFLogPreference)) {
+        if (CTechPrefs.getBool(dFLogPreference)) {
             dFConsole.log("[DEBUG] - " + string);
         }
     },
     info: function(string){
-        if (Prefs.getBool(dFLogPreference)) {
+        if (CTechPrefs.getBool(dFLogPreference)) {
             dFConsole.log("[INFO] - " + string);
         }
     },
     warn: function(string){
-        if (Prefs.getBool(dFLogPreference)) {
+        if (CTechPrefs.getBool(dFLogPreference)) {
             dFConsole.log("[WARN] - " + string);
         }
     },
     error: function(string){
-        if (Prefs.getBool(dFLogPreference)) {
+        if (CTechPrefs.getBool(dFLogPreference)) {
             dFConsole.log("[ERROR] - " + string);
         }
     }
 }
 
-var Utils = {
+var CTechUtils = {
     getOperationSystem: function(){
         const Cc = Components.classes;
         const Ci = Components.interfaces;
@@ -42,8 +42,11 @@ var Utils = {
         }
         return string;
     },
-	
-    getElement: function(id){
+    
+    getElement: function(id, aDocument){
+        if (aDocument) {
+            return aDocument.getElementById(id);
+        }
         return document.getElementById(id);
     }
 }

@@ -1,10 +1,10 @@
-var Options = {
+var DNSFlusherOptions = {
     colorChanged: function(){
-        var color = document.getElementById("dF-color-picker").color;
+        var color = CTechUtils.getElement("dF-color-picker").color;
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
         var browserWindow = wm.getMostRecentWindow("navigator:browser");
         
-		browserWindow.document.getElementById("dnsflusher_panel").setAttribute("style","color:"+color+";");
+		CTechUtils.getElement("dnsflusher-label", browserWindow.document).setAttribute("style","color:"+color+";");
     }
 }

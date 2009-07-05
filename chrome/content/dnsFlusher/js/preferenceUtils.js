@@ -7,9 +7,10 @@ const dFPreferenceWindowType = "dnsFlusher:settings";
 const dFPreferenceWindowURI = "chrome://dnsFlusher/content/options.xul";
 const dFPreferenceWindowOptions = "chrome,toolbar,centerscreen";
 
+//Singleton instance
 var prefs = null;
 
-var Prefs = {
+var CTechPrefs = {
     load: function(){
     },
     getPrefs: function(){
@@ -45,11 +46,11 @@ var Prefs = {
         var prefs = prefBranch.getChildList("", c);
         for (var i = 0; i < c.value; ++i) {
             if (prefBranch.prefHasUserValue(prefs[i])) {
-                Log.debug("Cleaning... " + prefs[i]);
+                CTechLog.debug("Cleaning... " + prefs[i]);
                 prefBranch.clearUserPref(prefs[i]);
             }
             else {
-                Log.debug("User doesn't set this value: " + prefs[i]);
+                CTechLog.debug("User doesn't set this value: " + prefs[i]);
             }
         }
     }

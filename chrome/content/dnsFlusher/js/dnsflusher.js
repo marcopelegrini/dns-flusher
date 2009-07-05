@@ -4,8 +4,6 @@ const FLUSHER_NOTIFY_LOCATION = Components.interfaces.nsIWebProgress.NOTIFY_LOCA
 //const IPV6_STATE_IS_DOCUMENT = Components.interfaces.nsIWebProgressListener.STATE_IS_DOCUMENT;
 //const IPV6_STATE_START = Components.interfaces.nsIWebProgressListener.STATE_START;
 
-const dnsFlusherName = "DNS Flusher";
-
 window.addEventListener("load", function(){
     dnsFlusher.init();
     dnsFlusher.loadPrefs();
@@ -14,15 +12,12 @@ window.addEventListener("unload", function(){
     dnsFlusher.destroy();
 }, false);
 
-var reloadByUser = false;
-
 var dnsFlusher = {
 
     init: function(){
+        this.dnsFlusherName = "DNS Flusher";
+        this.reloadByUser = false;
         this.flusherdnscache = new Array();
-        this.flusherrdnscache = new Array();
-        this.localip = null;
-        this.flusherdnscache['none'] = new Array();
         this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Ci.nsIDownloadManager);
         
         // shamelessly taken from flagfox extension 
@@ -33,26 +28,21 @@ var dnsFlusher = {
                         this.parent.updatestatus(aLocation.host);
                     }
                     else {
-                        this.parent.updatestatus(dnsFlusherName);
+                        this.parent.updatestatus();
                     }
                 } 
                 catch (e) {
-                    this.parent.updatestatus(dnsFlusherName);
+                    this.parent.updatestatus();
                 }
             },
-            
             onStateChange: function(a, b, c, d){
             },
-            
             onProgressChange: function(a, b, c, d, e, f){
             },
-            
             onStatusChange: function(a, b, c, d){
             },
-            
             onSecurityChange: function(a, b, c){
             },
-            
             onLinkIconAvailable: function(a){
             }
             
@@ -66,80 +56,122 @@ var dnsFlusher = {
         window.getBrowser().removeProgressListener(this.Listener);
     },
     
-    // return the ip of host
-    resolveIp: function(host){
-        if (this.flusherdnscache[host]) 
-            return this.flusherdnscache[host];
+    resolveIp: function(host, byUser){
+        CTechLog.debug("Resolving Host: " + host);
+        if (this.flusherdnscache[host]) {
+            CTechLog.debug("Host is already on cache: " + this.flusherdnscache[host])
+            this.updateLabel(host, this.flusherdnscache[host], byUser);
+            return;
+        }
         try {
-            // register dns class 
-            var cls = Components.classes['@mozilla.org/network/dns-service;1'];
-            var iface = Components.interfaces.nsIDNSService;
-            var dns = cls.getService(iface);
+            //DNS Data Listener
+            var dataListener = {
+                data: [],
+                QueryInterface: function(aIID){
+                    if (aIID.equals(Components.interfaces.nsIDNSListener) ||
+                    aIID.equals(Components.interfaces.nsISupports)) {
+                        return this;
+                    }
+                    throw Components.results.NS_NOINTERFACE;
+                },
+                onLookupComplete: function(aRequest, aRecord, aStatus){
+                    while (aRecord && aRecord.hasMore()) {
+                        this.data.push(aRecord.getNextAddrAsString());
+                    }
+                    CTechLog.debug("Resolved: " + this.data);
+                    this.parent.updateLabel(host, this.data, byUser);
+                    this.parent.flusherdnscache[this.host] = this.data;
+                }
+            };
+            dataListener.parent = this;
+            dataListener.host = host;
             
-            var nsrecord = dns.resolve(host, false);
-            var ip = new Array();
-            while (nsrecord && nsrecord.hasMore()) {
-                var myip = nsrecord.getNextAddrAsString();
-                
-                ip.push(myip);
-                this.flusherrdnscache[myip] = host;
+            CTechLog.debug("Getting current thread");
+            //Current Thread
+            var target = Components.classes["@mozilla.org/thread-manager;1"].getService().currentThread;
+            
+            //DNS Service            
+            var dnsService = Components.classes["@mozilla.org/network/dns-service;1"].getService(Components.interfaces.nsIDNSService);
+            try {
+                CTechLog.debug("Invoking assync resolver...");
+                dnsService.asyncResolve(host, 0, dataListener, target);
+            } 
+            catch (e) {
+                //Expected for unknown hosts
+                CTechLog.debug("Async Resolve error: " + e)
             }
-            this.flusherdnscache[host] = ip;
-            return ip;
         } 
         catch (e) {
+            CTechLog.error(e);
         }
-        this.flusherdnscache[host] = new Array(); // empty array for no ips
-        this.flusherrdnscache[host] = host;
-        return new Array();
-    },
-    
-    // convert num to base 'radix'
-    dec2radix: function(num, radix, pad){
-        var a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'];
-        var s = '';
-        while (num > 0) {
-            s = a[num % radix] + s;
-            num = Math.floor(num / radix);
-        }
-        while ((pad - s.length) > 0) {
-            s = '0' + s;
-        }
-        return s;
     },
     
     // update the statusbar panel
     updatestatus: function(host, byUser){
-        Log.debug(host, reloadByUser);
+        CTechLog.debug("Updating status for host: " + host + " by user: " + byUser);
         if (!host) {
-            reloadByUser = false;
+            this.updateLabel();
             return;
         }
-        //Status bar label
-        var ipLabel = document.getElementById('dnsflusher_panel');
         //Check host
         this.actualHost = host;
-        var ips = this.resolveIp(host);
-        if (ips.length) {
+        this.resolveIp(host, byUser);
+    },
+    
+    updateLabel: function(host, ips, byUser){
+        CTechLog.debug("Updating label: " + ips + " byUser: " + byUser);
+        var ipLabel = CTechUtils.getElement('dnsflusher-label');
+        this.cleanTooltip();
+        //Status bar label
+        if (host && ips && ips.length) {
             var j = 0;
             var text = ips[j];
             //Update label
-            if ((byUser || reloadByUser) && Prefs.getBool("label-efect")){
+            if ((byUser || this.reloadByUser) && CTechPrefs.getBool("label-efect")) {
                 text = "Flushed: " + text;
+                ipLabel.value = text;
                 var x = 0;
                 for (var i = 0; i < 10; i++) {
-                    setTimeout("document.getElementById('dnsflusher_panel').label = '" + text + "'", 1000 - x);
+                    setTimeout("document.getElementById('dnsflusher-label').value = '" + text + "'", 1000 - x);
                     var text = text.substring(1);
                     x -= 150;
                 }
-            }else{
-				ipLabel.label = text;
-			}
+            }
+            else {
+                ipLabel.value = text;
+            }
+            this.updateTooltip(host, ips);
         }
         else {
-            ipLabel.label = dnsFlusherName;
+            ipLabel.value = this.dnsFlusherName;
         }
-        reloadByUser = false;
+        this.reloadByUser = false;
+    },
+    
+    cleanTooltip: function(){
+        //Remove old tooltips
+        var tooltip = CTechUtils.getElement('dnsflusher-tooltip');
+        while (tooltip.childElementCount) {
+            tooltip.removeChild(tooltip.children[0]);
+        }
+        tooltip.setAttribute("style", "display:none;");
+    },
+    
+    updateTooltip: function(host, ips){
+        //Tooltip title    
+        var tooltipTitle = document.createElement("label");
+        tooltipTitle.setAttribute("value", "IP(s) for host: " + host);
+        tooltipTitle.setAttribute("style", "font-weight:bold;");
+        //Children
+        var tooltip = CTechUtils.getElement('dnsflusher-tooltip');
+        tooltip.appendChild(tooltipTitle);
+        tooltip.setAttribute("style", "padding:2px;");
+        for (i = 0; i < ips.length; i++) {
+            CTechLog.debug("Creating tooltip label for ip: " + ips[i]);
+            var label = document.createElement("label");
+            label.setAttribute("value", ips[i]);
+            tooltip.appendChild(label);
+        }
     },
     
     refreshdns: function(){
@@ -171,10 +203,10 @@ var dnsFlusher = {
             this.flusherdnscache = new Array();
             this.flusherrdnscache = new Array();
             
-            if (Prefs.getBool("reload-page")) {
+            if (CTechPrefs.getBool("reload-page")) {
                 var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
                 mainWindow.getBrowser().reload();
-                reloadByUser = true;
+                this.reloadByUser = true;
             }
             else {
                 this.updatestatus(this.actualHost, true);
@@ -194,12 +226,12 @@ var dnsFlusher = {
             dnsFlusher.refreshdns();
         }
         else {
-            Prefs.open();
+            CTechPrefs.open();
         }
     },
     
     loadPrefs: function(){
-        var color = Prefs.getString("label-color");
-        document.getElementById("dnsflusher_panel").setAttribute("style", "color:" + color + ";");
+        var color = CTechPrefs.getString("label-color");
+        CTechUtils.getElement("dnsflusher-label").setAttribute("style", "color:" + color + ";");
     }
 };
