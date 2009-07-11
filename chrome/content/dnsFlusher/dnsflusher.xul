@@ -5,7 +5,7 @@
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/optionsOverlay.js"/>
-    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsflusher.js"/>
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsFlusher.js"/>
     
     <statusbar id="status-bar">
         <statusbarpanel tooltip="dnsflusher-tooltip" id="dnsflusher_panel" label="DNS Flusher" onclick="dnsFlusher.eventDispatcher(event);">

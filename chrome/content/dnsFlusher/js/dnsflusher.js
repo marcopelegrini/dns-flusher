@@ -1,25 +1,28 @@
-const FLUSHER_NOTIFY_STATE_DOCUMENT = Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT;
-const FLUSHER_NOTIFY_LOCATION = Components.interfaces.nsIWebProgress.NOTIFY_LOCATION;
-//TODO - IPV6 is not supported yet
-//const IPV6_STATE_IS_DOCUMENT = Components.interfaces.nsIWebProgressListener.STATE_IS_DOCUMENT;
-//const IPV6_STATE_START = Components.interfaces.nsIWebProgressListener.STATE_START;
-
-window.addEventListener("load", function(){
-    dnsFlusher.init();
-    dnsFlusher.loadPrefs();
-}, false);
-window.addEventListener("unload", function(){
-    dnsFlusher.destroy();
-}, false);
-
+/**
+ * @author marcotulio
+ */
 var dnsFlusher = {
 
+    dnsFlusherName: "DNS Flusher",
+    branchName: "extensions.dnsFlusher.",
+    preferenceWindowType: "dnsFlusher:settings",
+    preferenceWindowURI: "chrome://dnsFlusher/content/options.xul",
+    preferenceWindowOptions: "chrome,toolbar,centerscreen",
+    
+    notifyStateDocument: Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT,
+    notifyLocation: Components.interfaces.nsIWebProgress.NOTIFY_LOCATION,
+    options: null,
+    
     init: function(){
-        this.dnsFlusherName = "DNS Flusher";
         this.reloadByUser = false;
         this.flusherdnscache = new Array();
-        this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Ci.nsIDownloadManager);
-        
+        this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
+        this.utils = new CTechUtils();
+        this.options = new DNSFlusherOptions(this.utils);
+        this.prefs = new CTechPrefs(this.branchName, this.preferenceWindowType, this.preferenceWindowURI, this.preferenceWindowOptions);
+        this.logger = new CTechLog(this.prefs);
+		this.prefs.setLogger(this.logger);
+		
         // shamelessly taken from flagfox extension 
         this.Listener = {
             onLocationChange: function(aProgress, aRequest, aLocation){
@@ -49,7 +52,7 @@ var dnsFlusher = {
         }; // this.Listener
         this.Listener.parent = this;
         
-        window.getBrowser().addProgressListener(this.Listener, FLUSHER_NOTIFY_LOCATION | FLUSHER_NOTIFY_STATE_DOCUMENT);
+        window.getBrowser().addProgressListener(this.Listener, this.notifyLocation | this.notifyStateDocument);
     },
     
     destroy: function(){
@@ -57,9 +60,9 @@ var dnsFlusher = {
     },
     
     resolveIp: function(host, byUser){
-        CTechLog.debug("Resolving Host: " + host);
+        this.logger.debug("Resolving Host: " + host);
         if (this.flusherdnscache[host]) {
-            CTechLog.debug("Host is already on cache: " + this.flusherdnscache[host])
+            this.logger.debug("Host is already on cache: " + this.flusherdnscache[host])
             this.updateLabel(host, this.flusherdnscache[host], byUser);
             return;
         }
@@ -78,7 +81,7 @@ var dnsFlusher = {
                     while (aRecord && aRecord.hasMore()) {
                         this.data.push(aRecord.getNextAddrAsString());
                     }
-                    CTechLog.debug("Resolved: " + this.data);
+                    this.parent.logger.debug("Resolved: " + this.data);
                     this.parent.updateLabel(host, this.data, byUser);
                     this.parent.flusherdnscache[this.host] = this.data;
                 }
@@ -86,29 +89,29 @@ var dnsFlusher = {
             dataListener.parent = this;
             dataListener.host = host;
             
-            CTechLog.debug("Getting current thread");
+            this.logger.debug("Getting current thread");
             //Current Thread
             var target = Components.classes["@mozilla.org/thread-manager;1"].getService().currentThread;
             
             //DNS Service            
             var dnsService = Components.classes["@mozilla.org/network/dns-service;1"].getService(Components.interfaces.nsIDNSService);
             try {
-                CTechLog.debug("Invoking assync resolver...");
+                this.logger.debug("Invoking assync resolver...");
                 dnsService.asyncResolve(host, 0, dataListener, target);
             } 
             catch (e) {
                 //Expected for unknown hosts
-                CTechLog.debug("Async Resolve error: " + e)
+                this.logger.debug("Async Resolve error: " + e)
             }
         } 
         catch (e) {
-            CTechLog.error(e);
+            this.logger.error(e);
         }
     },
     
     // update the statusbar panel
     updatestatus: function(host, byUser){
-        CTechLog.debug("Updating status for host: " + host + " by user: " + byUser);
+        this.logger.debug("Updating status for host: " + host + " by user: " + byUser);
         if (!host) {
             this.updateLabel();
             return;
@@ -119,15 +122,15 @@ var dnsFlusher = {
     },
     
     updateLabel: function(host, ips, byUser){
-        CTechLog.debug("Updating label: " + ips + " byUser: " + byUser);
-        var ipLabel = CTechUtils.getElement('dnsflusher-label');
+        this.logger.debug("Updating label: " + ips + " byUser: " + byUser);
+        var ipLabel = this.utils.getElement('dnsflusher-label');
         this.cleanTooltip();
         //Status bar label
         if (host && ips && ips.length) {
             var j = 0;
             var text = ips[j];
             //Update label
-            if ((byUser || this.reloadByUser) && CTechPrefs.getBool("label-efect")) {
+            if ((byUser || this.reloadByUser) && this.prefs.getBool("label-efect")) {
                 text = "Flushed: " + text;
                 ipLabel.value = text;
                 var x = 0;
@@ -150,7 +153,7 @@ var dnsFlusher = {
     
     cleanTooltip: function(){
         //Remove old tooltips
-        var tooltip = CTechUtils.getElement('dnsflusher-tooltip');
+        var tooltip = this.utils.getElement('dnsflusher-tooltip');
         while (tooltip.childElementCount) {
             tooltip.removeChild(tooltip.children[0]);
         }
@@ -163,11 +166,11 @@ var dnsFlusher = {
         tooltipTitle.setAttribute("value", "IP(s) for host: " + host);
         tooltipTitle.setAttribute("style", "font-weight:bold;");
         //Children
-        var tooltip = CTechUtils.getElement('dnsflusher-tooltip');
+        var tooltip = this.utils.getElement('dnsflusher-tooltip');
         tooltip.appendChild(tooltipTitle);
         tooltip.setAttribute("style", "padding:2px;");
         for (i = 0; i < ips.length; i++) {
-            CTechLog.debug("Creating tooltip label for ip: " + ips[i]);
+            this.logger.debug("Creating tooltip label for ip: " + ips[i]);
             var label = document.createElement("label");
             label.setAttribute("value", ips[i]);
             tooltip.appendChild(label);
@@ -203,7 +206,7 @@ var dnsFlusher = {
             this.flusherdnscache = new Array();
             this.flusherrdnscache = new Array();
             
-            if (CTechPrefs.getBool("reload-page")) {
+            if (this.prefs.getBool("reload-page")) {
                 var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
                 mainWindow.getBrowser().reload();
                 this.reloadByUser = true;
@@ -226,12 +229,20 @@ var dnsFlusher = {
             dnsFlusher.refreshdns();
         }
         else {
-            CTechPrefs.open();
+            this.prefs.open();
         }
     },
     
     loadPrefs: function(){
-        var color = CTechPrefs.getString("label-color");
-        CTechUtils.getElement("dnsflusher-label").setAttribute("style", "color:" + color + ";");
+        var color = this.prefs.getString("label-color");
+        this.utils.getElement("dnsflusher-label").setAttribute("style", "color:" + color + ";");
     }
 };
+
+window.addEventListener("load", function(){
+    dnsFlusher.init();
+    dnsFlusher.loadPrefs();
+}, false);
+window.addEventListener("unload", function(){
+    dnsFlusher.destroy();
+}, false);

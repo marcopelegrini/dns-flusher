@@ -1,56 +1,67 @@
 /**
  * @author marcotulio
  */
-// Preferences contants
-const dFBranchName = "extensions.dnsFlusher.";
-const dFPreferenceWindowType = "dnsFlusher:settings";
-const dFPreferenceWindowURI = "chrome://dnsFlusher/content/options.xul";
-const dFPreferenceWindowOptions = "chrome,toolbar,centerscreen";
+function CTechPrefs(branchName, windowType, windowURI, windowOptions){
 
-//Singleton instance
-var prefs = null;
-
-var CTechPrefs = {
-    load: function(){
-    },
-    getPrefs: function(){
-        if (prefs == null) {
+    // Preferences contants
+    this.branchName = branchName;
+    this.windowType = windowType;
+    this.windowURI = windowURI;
+    this.windowOptions = windowOptions;
+    
+    //Singleton instance
+    this.prefs = null;
+	this.logger
+    
+    //Get preferences branch
+    this.getPrefs = function(){
+		//Lazy loading
+        if (!this.prefs) {
             var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-            prefs = prefService.getBranch(dFBranchName);
+            this.prefs = prefService.getBranch(this.branchName);
         }
-        return prefs;
-    },
-    getBool: function(value){
+        return this.prefs;
+    }
+    
+    this.getBool = function(value){
         return this.getPrefs().getBoolPref(value);
-    },
-    getString: function(value){
-    	return this.getPrefs().getCharPref(value);
-    },
-    open: function(){
-        var wm = Cc['@mozilla.org/appshell/window-mediator;1'].getService(Ci.nsIWindowMediator);
-        var topWindow = wm.getMostRecentWindow(dFPreferenceWindowType);
+    }
+    
+    this.getString = function(value){
+        return this.getPrefs().getCharPref(value);
+    }
+    
+	this.setLogger = function(logger){
+		this.logger = logger;
+	}
+	
+    //Use window mediator to open preferences (needed because add-ons manager window)
+    this.open = function(){
+        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+        var topWindow = wm.getMostRecentWindow(this.windowType);
         
         if (topWindow) {
             topWindow.focus();
         }
         else {
             topWindow = wm.getMostRecentWindow(null);
-            topWindow.openDialog(dFPreferenceWindowURI, "", dFPreferenceWindowOptions);
+            topWindow.openDialog(this.windowURI, "", this.windowOptions);
         }
-    },
-    reset: function(){
-        var prefBranch = Prefs.getPrefs();
+    }
+    
+    this.reset = function(){
+        var prefBranch = this.getPrefs();
         var c = {
             value: 0
         };
-        var prefs = prefBranch.getChildList("", c);
+        var chindren = prefBranch.getChildList("", c);
         for (var i = 0; i < c.value; ++i) {
-            if (prefBranch.prefHasUserValue(prefs[i])) {
-                CTechLog.debug("Cleaning... " + prefs[i]);
-                prefBranch.clearUserPref(prefs[i]);
+            if (prefBranch.prefHasUserValue(chindren[i])) {
+                this.logger.debug("Cleaning... " + chindren[i]);
+                prefBranch.clearUserPref(chindren[i]);
             }
             else {
-                CTechLog.debug("User doesn't set this value: " + prefs[i]);
+                this.logger.debug("User doesn't set this value: " + chindren[i]);
             }
         }
     }

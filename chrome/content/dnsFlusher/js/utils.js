@@ -1,49 +1,49 @@
 /**
  * @author marcotulio
  */
-const dFConsole = Application.console;
-const dFLogPreference = "log";
+function CTechLog(preferences){
 
-var CTechLog = {
-    debug: function(string){
-        if (CTechPrefs.getBool(dFLogPreference)) {
-            dFConsole.log("[DEBUG] - " + string);
+    this.logPreference = "log";
+    this.enabled = preferences.getBool(this.logPreference);
+    this.console = Application.console;
+    
+    this.debug = function(string){
+        if (this.enabled) {
+            this.console.log("[DEBUG] - " + string);
         }
-    },
-    info: function(string){
-        if (CTechPrefs.getBool(dFLogPreference)) {
-            dFConsole.log("[INFO] - " + string);
+    }
+    this.info = function(string){
+        if (this.enabled) {
+            this.console.log("[INFO] - " + string);
         }
-    },
-    warn: function(string){
-        if (CTechPrefs.getBool(dFLogPreference)) {
-            dFConsole.log("[WARN] - " + string);
+    }
+    this.warn = function(string){
+        if (this.enabled) {
+            this.console.log("[WARN] - " + string);
         }
-    },
-    error: function(string){
-        if (CTechPrefs.getBool(dFLogPreference)) {
-            dFConsole.log("[ERROR] - " + string);
+    }
+    this.error = function(string){
+        if (this.enabled) {
+            this.console.log("[ERROR] - " + string);
         }
     }
 }
 
-var CTechUtils = {
-    getOperationSystem: function(){
-        const Cc = Components.classes;
-        const Ci = Components.interfaces;
-        var sysInfo = Cc['@mozilla.org/system-info;1'].getService(Ci.nsIPropertyBag2);
+function CTechUtils(){
+    this.getOperationSystem = function(){
+        var sysInfo = Components.classes['@mozilla.org/system-info;1'].getService(Components.interfaces.nsIPropertyBag2);
         var plataform = sysInfo.getProperty('name');
         return plataform;
-    },
+    }
     
-    trim: function(string){
+    this.trim = function(string){
         if (string != null && string != undefined) {
             return string.replace(/^\s*/, "").replace(/\s*$/, "");
         }
         return string;
-    },
+    }
     
-    getElement: function(id, aDocument){
+    this.getElement = function(id, aDocument){
         if (aDocument) {
             return aDocument.getElementById(id);
         }
