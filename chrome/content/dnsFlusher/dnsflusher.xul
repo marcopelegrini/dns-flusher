@@ -2,9 +2,10 @@
 <overlay id="dnsflusher"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     
+	<!-- Utility classes -->
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
-    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/optionsOverlay.js"/>
+	<!-- DNSFlusher class -->
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsFlusher.js"/>
     
     <statusbar id="status-bar">

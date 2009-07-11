@@ -1,7 +1,7 @@
 /**
  * @author marcotulio
  */
-var DNSFlusherOptions = {
+var dnsFlusherOptions = {
 	
 	utils: new CTechUtils(),
 	

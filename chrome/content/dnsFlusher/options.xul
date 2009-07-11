@@ -10,10 +10,12 @@
  title="Settings"
  buttons="accept,cancel"
  type="prefwindow">
-    
+
+	<!-- Utility classes -->    
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
-    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/optionsOverlay.js"/>
+	<!-- Option overlay class -->
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/options.js"/>
     
     <prefpane id="prefpane_general" label="General">
         <preferences>
@@ -28,7 +30,7 @@
             <spacer height="10"/>
             <hbox>
                 <label value="Change status bar IP color: "/>
-                <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="DNSFlusherOptions.colorChanged();"/>
+                <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="dnsFlusherOptions.colorChanged();"/>
             </hbox>
         </groupbox>
     </prefpane>
