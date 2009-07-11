@@ -1,12 +1,12 @@
 /**
  * @author marcotulio
  */
-function DNSFlusherOptions(utils){
+var DNSFlusherOptions = {
 	
-	this.utils = utils;
+	utils: new CTechUtils(),
 	
-    this.colorChanged = function(){
-        var color = CTechUtils.getElement("dF-color-picker").color;
+    colorChanged: function(){
+        var color = this.utils.getElement("dF-color-picker").color;
         
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
         var browserWindow = wm.getMostRecentWindow("navigator:browser");

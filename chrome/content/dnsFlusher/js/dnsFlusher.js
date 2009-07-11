@@ -1,6 +1,14 @@
 /**
  * @author marcotulio
  */
+window.addEventListener("load", function(){
+    dnsFlusher.init();
+    dnsFlusher.loadPrefs();
+}, false);
+window.addEventListener("unload", function(){
+    dnsFlusher.destroy();
+}, false);
+
 var dnsFlusher = {
 
     dnsFlusherName: "DNS Flusher",
@@ -18,7 +26,6 @@ var dnsFlusher = {
         this.flusherdnscache = new Array();
         this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
         this.utils = new CTechUtils();
-        this.options = new DNSFlusherOptions(this.utils);
         this.prefs = new CTechPrefs(this.branchName, this.preferenceWindowType, this.preferenceWindowURI, this.preferenceWindowOptions);
         this.logger = new CTechLog(this.prefs);
 		this.prefs.setLogger(this.logger);
@@ -169,7 +176,7 @@ var dnsFlusher = {
         var tooltip = this.utils.getElement('dnsflusher-tooltip');
         tooltip.appendChild(tooltipTitle);
         tooltip.setAttribute("style", "padding:2px;");
-        for (i = 0; i < ips.length; i++) {
+        for (var i = 0; i < ips.length; i++) {
             this.logger.debug("Creating tooltip label for ip: " + ips[i]);
             var label = document.createElement("label");
             label.setAttribute("value", ips[i]);
@@ -238,11 +245,3 @@ var dnsFlusher = {
         this.utils.getElement("dnsflusher-label").setAttribute("style", "color:" + color + ";");
     }
 };
-
-window.addEventListener("load", function(){
-    dnsFlusher.init();
-    dnsFlusher.loadPrefs();
-}, false);
-window.addEventListener("unload", function(){
-    dnsFlusher.destroy();
-}, false);
