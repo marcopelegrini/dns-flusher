@@ -23,7 +23,6 @@ var dnsFlusher = {
     
     init: function(){
         this.reloadByUser = false;
-        this.flusherdnscache = new Array();
         this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
         this.utils = new CTechUtils();
         this.prefs = new CTechPrefs(this.branchName, this.preferenceWindowType, this.preferenceWindowURI, this.preferenceWindowOptions);
@@ -68,11 +67,6 @@ var dnsFlusher = {
     
     resolveIp: function(host, byUser){
         this.logger.debug("Resolving Host: " + host);
-        if (this.flusherdnscache[host]) {
-            this.logger.debug("Host is already on cache: " + this.flusherdnscache[host])
-            this.updateLabel(host, this.flusherdnscache[host], byUser);
-            return;
-        }
         try {
             //DNS Data Listener
             var dataListener = {
@@ -90,7 +84,6 @@ var dnsFlusher = {
                     }
                     this.parent.logger.debug("Resolved: " + this.data);
                     this.parent.updateLabel(host, this.data, byUser);
-                    this.parent.flusherdnscache[this.host] = this.data;
                 }
             };
             dataListener.parent = this;
@@ -209,9 +202,6 @@ var dnsFlusher = {
             //Set online
             ioService.offline = false;
             backToOnline = true;
-            
-            this.flusherdnscache = new Array();
-            this.flusherrdnscache = new Array();
             
             if (this.prefs.getBool("reload-page")) {
                 var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
