@@ -4,7 +4,7 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>{7d575baa-b543-11dc-8314-0800200c9a66}</em:id>
 		<em:name>DNS Flusher</em:name>
-		<em:version>2.0.3</em:version>
+		<em:version>2.0.4</em:version>
 		<em:description>DNS Flusher</em:description>
 		<em:iconURL>chrome://dnsFlusher/skin/icon32.png</em:iconURL>
 		<em:optionsURL>chrome://dnsFlusher/content/options.xul</em:optionsURL>		

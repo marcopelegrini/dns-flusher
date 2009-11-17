@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<overlay id="dnsflusher"
+ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+	<!-- Utility classes -->
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
+	<!-- DNSFlusher class -->
+    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsFlusher.js"/>
+    
+    <statusbar id="status-bar">
+        <statusbarpanel tooltip="dnsflusher-tooltip" id="dnsflusher_panel" label="DNS Flusher" onclick="dnsFlusher.eventDispatcher(event);">
+            <label value="DNS Flusher" id="dnsflusher-label"/>
+            <tooltip id="dnsflusher-tooltip" noautohide="true" orient="vertical" position="before_start" style="padding:2px; display:none;"></tooltip>
+        </statusbarpanel>
+    </statusbar>
+</overlay>
