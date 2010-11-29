@@ -1,17 +1,14 @@
 /**
  * @author marcotulio
  */
-function CTechPrefs(branchName, windowType, windowURI, windowOptions){
+function CTechPrefs(branchName){
 
     // Preferences contants
     this.branchName = branchName;
-    this.windowType = windowType;
-    this.windowURI = windowURI;
-    this.windowOptions = windowOptions;
     
     //Singleton instance
     this.prefs = null;
-	this.logger
+	this.logger;
     
     //Get preferences branch
     this.getPrefs = function(){
@@ -26,29 +23,23 @@ function CTechPrefs(branchName, windowType, windowURI, windowOptions){
     this.getBool = function(value){
         return this.getPrefs().getBoolPref(value);
     }
+	
+	this.setBool = function(name, value){
+		this.getPrefs().setBoolPref(name, value);
+	}
     
     this.getString = function(value){
         return this.getPrefs().getCharPref(value);
+    }
+	
+    this.setString = function(name, value){
+        this.getPrefs().setCharPref(name, value);
     }
     
 	this.setLogger = function(logger){
 		this.logger = logger;
 	}
 	
-    //Use window mediator to open preferences (needed because add-ons manager window)
-    this.open = function(){
-        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
-        var topWindow = wm.getMostRecentWindow(this.windowType);
-        
-        if (topWindow) {
-            topWindow.focus();
-        }
-        else {
-            topWindow = wm.getMostRecentWindow(null);
-            topWindow.openDialog(this.windowURI, "", this.windowOptions);
-        }
-    }
-    
     this.reset = function(){
         var prefBranch = this.getPrefs();
         var c = {

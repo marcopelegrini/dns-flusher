@@ -10,7 +10,6 @@ window.addEventListener("unload", function(){
 }, false);
 
 var dnsFlusher = {
-
     dnsFlusherName: "DNS Flusher",
     branchName: "extensions.dnsFlusher.",
     preferenceWindowType: "dnsFlusher:settings",
@@ -25,7 +24,7 @@ var dnsFlusher = {
         this.reloadByUser = false;
         this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
         this.utils = new CTechUtils();
-        this.prefs = new CTechPrefs(this.branchName, this.preferenceWindowType, this.preferenceWindowURI, this.preferenceWindowOptions);
+        this.prefs = new CTechPrefs(this.branchName);
         this.logger = new CTechLog(this.prefs);
 		this.prefs.setLogger(this.logger);
 		
@@ -122,7 +121,7 @@ var dnsFlusher = {
     },
     
     updateLabel: function(host, ips, byUser){
-        this.logger.debug("Updating label: " + ips + " byUser: " + byUser);
+		this.logger.debug("Updating label: " + ips + " byUser: " + byUser);
         var ipLabel = this.utils.getElement('dnsflusher-label');
         this.cleanTooltip();
         //Status bar label
@@ -226,11 +225,22 @@ var dnsFlusher = {
     },
     
     eventDispatcher: function(event){
-        if (event.button < 2) {
+        // Fire on left and middle button
+		if (event.button < 2) {
             dnsFlusher.refreshdns();
         }
+    },
+	
+    openPreferences: function(){
+        //Use window mediator to open preferences (needed because add-ons manager window)
+        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+        var topWindow = wm.getMostRecentWindow(this.preferenceWindowType);
+        if (topWindow) {
+            topWindow.focus();
+        }
         else {
-            this.prefs.open();
+            topWindow = wm.getMostRecentWindow(null);
+            topWindow.openDialog(this.preferenceWindowURI, "", this.preferenceWindowOptions);
         }
     },
     
