@@ -26,7 +26,6 @@ var dnsFlusher = {
 		this.prefs.setLogger(this.logger);
 		//Firefox Services
 		Components.utils.import("resource://gre/modules/Downloads.jsm");
-		// this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
 		this.dnsService = Components.classes["@mozilla.org/network/dns-service;1"].getService(Components.interfaces.nsIDNSService);		
 	    this.networkIoService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
 	    this.cacheService = Components.classes["@mozilla.org/network/cache-service;1"].getService(Components.interfaces.nsICacheService);
@@ -63,6 +62,18 @@ var dnsFlusher = {
         this.Listener.parent = this;
         
         window.getBrowser().addProgressListener(this.Listener);
+
+
+        var configured = false;
+        try{
+			configured = this.prefs.getBool("configured");
+        }catch(e){
+        	this.logger.warn("DNS Flusher appears not to be configured");
+        }
+		if (!configured) {
+			this.installButton();
+			this.prefs.setBool("configured", true);
+		}
     },
 
     addListener: function(){
@@ -192,12 +203,14 @@ var dnsFlusher = {
     
     refreshdns: function(){
         //Check for active downloads
-        var activeDownloads = this.downloadManager.activeDownloadCount;
-        var strMsg = "There are downloads currently in progress.\nIf you flush the DNS now your downloads will be lost!\nDo you want to continue?\n";
+        // var activeDownloads = this.downloadManager.activeDownloadCount;
+        // var downloads = Downloads.getList(Downloads.ALL);
         
-        if (activeDownloads > 0 && !confirm(strMsg)) {
-            return false;
-        }
+        // var strMsg = "There are downloads currently in progress.\nIf you flush the DNS now your downloads will be lost!\nDo you want to continue?\n";
+        
+        // if (activeDownloads > 0 && !confirm(strMsg)) {
+        //     return false;
+        // }
         try {
 		    this.networkIoService.offline = true;
 
@@ -274,5 +287,12 @@ var dnsFlusher = {
 
         var showIcon = this.prefs.getBool("show-icon");
         this.utils.getElement("dnsflusher_status_img").hidden = !showIcon;        
-    }
+    },
+
+	installButton: function() {
+		var toolbar = document.getElementById("nav-bar");
+        toolbar.insertItem("dnsflusher_toolbar_button");
+        toolbar.setAttribute("currentset", toolbar.currentSet);
+        document.persist(toolbar.id, "currentset");
+	}       
 };
