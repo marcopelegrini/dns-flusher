@@ -1,0 +1,11 @@
+#dnsflusher_status_img {
+	list-style-image: url("chrome://dnsFlusher/skin/images/new-icon16.png");
+}
+
+#dnsflusher_toolbar_button {
+    list-style-image: url("chrome://dnsFlusher/skin/images/new-icon24.png");
+}
+
+[iconsize="small"] #dnsflusher_toolbar_button {
+    list-style-image: url("chrome://dnsFlusher/skin/images/new-icon16.png");
+}

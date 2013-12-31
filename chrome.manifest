@@ -1,6 +1,12 @@
-overlay	chrome://browser/content/browser.xul		chrome://dnsFlusher/content/dnsFlusher.xul
-overlay	chrome://navigator/content/navigator.xul	chrome://dnsFlusher/content/dnsFlusher.xul
+overlay	chrome://browser/content/browser.xul			chrome://dnsFlusher/content/dnsFlusher.xul
+overlay	chrome://navigator/content/navigator.xul		chrome://dnsFlusher/content/dnsFlusher.xul
+
+style 	chrome://global/content/customizeToolbar.xul	chrome://dnsFlusher/skin/toolbar.css
 
 content	dnsFlusher									chrome/content/dnsFlusher/
 
-skin	dnsFlusher		classic/1.0					chrome/skin/classic/dnsFlusher/
+skin		dnsFlusher		classic					chrome/skin/classic/dnsFlusher/
+
+component 	{7d575baa-b543-11dc-8314-0800200c9a67}	components/dnsFlusherService.js
+contract 	@coders.com.br/DNSFlusher;1 			{7d575baa-b543-11dc-8314-0800200c9a67}
+category 	profile-after-change					DNSFlusher 									@coders.com.br/DNSFlusher;1

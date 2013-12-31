@@ -4,6 +4,7 @@
 window.addEventListener("load", function(){
     dnsFlusher.init();
     dnsFlusher.loadPrefs();
+    dnsFlusher.addListener();
 }, false);
 window.addEventListener("unload", function(){
     dnsFlusher.destroy();
@@ -16,19 +17,23 @@ var dnsFlusher = {
     preferenceWindowURI: "chrome://dnsFlusher/content/options.xul",
     preferenceWindowOptions: "chrome,toolbar,centerscreen",
     
-    notifyStateDocument: Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT,
-    notifyLocation: Components.interfaces.nsIWebProgress.NOTIFY_LOCATION,
-    options: null,
-    
     init: function(){
+
         this.reloadByUser = false;
-        this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
         this.utils = new CTechUtils();
         this.prefs = new CTechPrefs(this.branchName);
         this.logger = new CTechLog(this.prefs);
 		this.prefs.setLogger(this.logger);
-		
-        // shamelessly taken from flagfox extension 
+		//Firefox Services
+		Components.utils.import("resource://gre/modules/Downloads.jsm");
+		// this.downloadManager = Components.classes["@mozilla.org/download-manager;1"].getService(Components.interfaces.nsIDownloadManager);
+		this.dnsService = Components.classes["@mozilla.org/network/dns-service;1"].getService(Components.interfaces.nsIDNSService);		
+	    this.networkIoService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+	    this.cacheService = Components.classes["@mozilla.org/network/cache-service;1"].getService(Components.interfaces.nsICacheService);
+	    this.threadManager = Components.classes["@mozilla.org/thread-manager;1"].getService();
+
+        this.logger.info("Starting DNS Flusher...");
+
         this.Listener = {
             onLocationChange: function(aProgress, aRequest, aLocation){
                 try {
@@ -54,10 +59,17 @@ var dnsFlusher = {
             onLinkIconAvailable: function(a){
             }
             
-        }; // this.Listener
+        };
         this.Listener.parent = this;
         
-        window.getBrowser().addProgressListener(this.Listener, this.notifyLocation | this.notifyStateDocument);
+        window.getBrowser().addProgressListener(this.Listener);
+    },
+
+    addListener: function(){
+        var mainWindow = this.utils.getMainWindow();
+        mainWindow.document.addEventListener("DNSFlusherEvent", function(e) { 
+            dnsFlusher.flushListener(e); 
+        }, false);
     },
     
     destroy: function(){
@@ -90,13 +102,11 @@ var dnsFlusher = {
             
             this.logger.debug("Getting current thread");
             //Current Thread
-            var target = Components.classes["@mozilla.org/thread-manager;1"].getService().currentThread;
+            var target = this.threadManager.currentThread;
             
-            //DNS Service            
-            var dnsService = Components.classes["@mozilla.org/network/dns-service;1"].getService(Components.interfaces.nsIDNSService);
             try {
                 this.logger.debug("Invoking assync resolver...");
-                dnsService.asyncResolve(host, 0, dataListener, target);
+                this.dnsService.asyncResolve(host, 0, dataListener, target);
             } 
             catch (e) {
                 //Expected for unknown hosts
@@ -188,45 +198,59 @@ var dnsFlusher = {
         if (activeDownloads > 0 && !confirm(strMsg)) {
             return false;
         }
-        
-        //Service IO
-        var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-        var backToOnline = false;
         try {
-        
-            //Set offline
-            ioService.offline = true;
-            
-            //Get Cache Service
-            var cacheService = Components.classes["@mozilla.org/network/cache-service;1"].getService(Components.interfaces.nsICacheService);
-            
-            cacheService.evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
-            
-            //Set online
-            ioService.offline = false;
-            backToOnline = true;
-            
+		    this.networkIoService.offline = true;
+
+            var prefService = this.prefs.getService();
+            var prefNameExpiration = "network.dnsCacheExpiration";
+            var prefNameEntries = "network.dnsCacheEntries";
+            var vExp = null;
+            var vEntries = null;
+            if (prefService.prefHasUserValue(prefNameExpiration)){
+                vExp = prefService.getIntPref(prefNameExpiration);
+            }
+            if (prefService.prefHasUserValue(prefNameEntries)){
+                vEntries = prefService.getIntPref(prefNameEntries);
+            }
+
+            prefService.setIntPref(prefNameExpiration, "0");
+            prefService.setIntPref(prefNameEntries, "0");
+
+            if (vExp != null){
+                prefService.setIntPref(prefNameExpiration, vExp);
+            }else{
+                prefService.clearUserPref(prefNameExpiration);
+            }
+
+            if (vEntries != null){
+                prefService.setIntPref(prefNameEntries, vEntries);
+            }else{
+                prefService.clearUserPref(prefNameEntries);
+            }
+
+		    this.cacheService.evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
+		    this.networkIoService.offline = false;      
+
             if (this.prefs.getBool("reload-page")) {
-                var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIWebNavigation).QueryInterface(Components.interfaces.nsIDocShellTreeItem).rootTreeItem.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindow);
+                var mainWindow = this.utils.getMainWindow();
                 mainWindow.getBrowser().reload();
                 this.reloadByUser = true;
             }
             else {
                 this.updatestatus(this.actualHost, true);
             }
-        }
-        finally {
-            if (!backToOnline) {
-                if (ioService) {
-                    ioService.offline = false;
-                }
-            }
+        }catch(e){
+            this.logger.error("Error flushing DNS: " + e);
         }
     },
+
+    flushListener: function() {
+        dnsFlusher.refreshdns();
+    },   
     
     eventDispatcher: function(event){
         // Fire on left and middle button
-		if (event.button < 2) {
+		if (event.button < 2 || event.button == undefined) {
             dnsFlusher.refreshdns();
         }
     },
@@ -247,5 +271,8 @@ var dnsFlusher = {
     loadPrefs: function(){
         var color = this.prefs.getString("label-color");
         this.utils.getElement("dnsflusher-label").setAttribute("style", "color:" + color + ";");
+
+        var showIcon = this.prefs.getBool("show-icon");
+        this.utils.getElement("dnsflusher_status_img").hidden = !showIcon;        
     }
 };

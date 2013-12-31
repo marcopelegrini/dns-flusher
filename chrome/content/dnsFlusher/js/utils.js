@@ -49,4 +49,18 @@ function CTechUtils(){
         }
         return document.getElementById(id);
     }
+
+    this.getBrowserWindow = function(){
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+        return wm.getMostRecentWindow("navigator:browser");
+    }
+
+    this.getMainWindow = function(){
+        return window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        .getInterface(Components.interfaces.nsIWebNavigation)
+                        .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                        .rootTreeItem
+                        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                        .getInterface(Components.interfaces.nsIDOMWindow);
+    }
 }

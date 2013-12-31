@@ -1,22 +1,28 @@
 <?xml version="1.0"?>
+<?xml-stylesheet href="chrome://dnsFlusher/skin/style.css" type="text/css"?>
+
 <overlay id="dnsflusher"
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     
+    
+    
 	<!-- Utility classes -->
+    <!-- <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsFlusherService.js"/> -->
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
 	<!-- DNSFlusher class -->
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/dnsFlusher.js"/>
     
+
     <statusbar id="status-bar">
         <statusbarpanel 
-        	tooltip="dnsflusher-tooltip" 
         	id="dnsflusher_panel" 
-        	label="DNS Flusher" 
+            tooltip="dnsflusher-tooltip"
         	context="dnsflusher-statepopup"
         	onclick="dnsFlusher.eventDispatcher(event);">
         	
             <label value="DNS Flusher" id="dnsflusher-label"/>
+            <image id="dnsflusher_status_img" />
             <tooltip id="dnsflusher-tooltip" noautohide="true" orient="vertical" position="before_start" style="padding:2px; display:none;"></tooltip>
         </statusbarpanel>
         
@@ -25,4 +31,19 @@
 			<menuitem label="Opções" accesskey="O" oncommand="event.preventDefault(); event.stopPropagation(); dnsFlusher.openPreferences();" />
 		</menupopup>
     </statusbar>
+
+    <toolbarpalette id="BrowserToolbarPalette">
+        <toolbarbutton 
+                id="dnsflusher_toolbar_button" 
+                type="menu-button"
+                class="toolbarbutton-1 chromeclass-toolbar-additional"
+                label="DNS Flusher"
+                tooltiptext="Flush DNS"
+                oncommand="dnsFlusher.eventDispatcher(event);" >
+            
+                <menupopup>
+                    <menuitem label="Opções" oncommand="event.preventDefault(); event.stopPropagation(); dnsFlusher.openPreferences();" />
+                </menupopup>
+        </toolbarbutton>
+    </toolbarpalette>       
 </overlay>

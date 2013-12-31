@@ -14,10 +14,14 @@ function CTechPrefs(branchName){
     this.getPrefs = function(){
 		//Lazy loading
         if (!this.prefs) {
-            var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
+            var prefService = this.getService();
             this.prefs = prefService.getBranch(this.branchName);
         }
         return this.prefs;
+    }
+
+    this.getService = function(){
+        return Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
     }
     
     this.getBool = function(value){
@@ -36,10 +40,22 @@ function CTechPrefs(branchName){
         this.getPrefs().setCharPref(name, value);
     }
     
+    this.getInt = function(value){
+        return this.getPrefs().getIntPref(value);
+    }
+    
+    this.setInt = function(name, value){
+        this.getPrefs().setIntPref(name, value);
+    }
+
+    this.hasUserValue = function(name){
+        return this.getPrefs().prefHasUserValue(name);
+    }
+
 	this.setLogger = function(logger){
 		this.logger = logger;
 	}
-	
+
     this.reset = function(){
         var prefBranch = this.getPrefs();
         var c = {

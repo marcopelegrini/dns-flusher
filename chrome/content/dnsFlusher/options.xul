@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://dnsFlusher/skin/" type="text/css"?>
 
 <prefwindow
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -22,11 +21,13 @@
             <preference id="label-color" name="extensions.dnsFlusher.label-color" type="unichar"/>
             <preference id="reload-page" name="extensions.dnsFlusher.reload-page" type="bool"/>
             <preference id="label-efect" name="extensions.dnsFlusher.label-efect" type="bool"/>
+            <preference id="show-icon" name="extensions.dnsFlusher.show-icon" type="bool"/>
         </preferences>
         <groupbox orient="vertical">
             <caption label="General"/>
             <checkbox label="Reload current page after refresh DNS" preference="reload-page"/>
             <checkbox label="Use status bar effect on refresh" preference="label-efect"/>
+            <checkbox label="Show icon on status bar" preference="show-icon" oncommand="dnsFlusherOptions.showHideViewElements('dnsflusher_status_img', this.checked);" />
             <spacer height="10"/>
             <hbox>
                 <label value="Change status bar IP color: "/>
