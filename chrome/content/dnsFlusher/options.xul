@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
+<!DOCTYPE prefwindow SYSTEM "chrome://dnsFlusher/locale/dnsFlusher.dtd">
+
 <prefwindow
  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
  xmlns:html="http://www.w3.org/1999/xhtml"
  windowtype="dnsFlusher:settings"
  id="dnsFlusher-settings"
- title="Settings"
+ title="&dnsFlusher.settings;"
  buttons="accept,cancel"
  type="prefwindow">
 
@@ -16,7 +18,7 @@
 	<!-- Option overlay class -->
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/options.js"/>
     
-    <prefpane id="prefpane_general" label="General">
+    <prefpane id="prefpane_general" label="&dnsFlusher.general;">
         <preferences>
             <preference id="label-color" name="extensions.dnsFlusher.label-color" type="unichar"/>
             <preference id="reload-page" name="extensions.dnsFlusher.reload-page" type="bool"/>
@@ -24,13 +26,13 @@
             <preference id="show-icon" name="extensions.dnsFlusher.show-icon" type="bool"/>
         </preferences>
         <groupbox orient="vertical">
-            <caption label="General"/>
-            <checkbox label="Reload current page after refresh DNS" preference="reload-page"/>
-            <checkbox label="Use status bar effect on refresh" preference="label-efect"/>
-            <checkbox label="Show icon on status bar" preference="show-icon" oncommand="dnsFlusherOptions.showHideViewElements('dnsflusher_status_img', this.checked);" />
+            <caption label="&dnsFlusher.general;"/>
+            <checkbox label="&dnsFlusher.reloadPage;" preference="reload-page"/>
+            <checkbox label="&dnsFlusher.useStatusBarEffect;" preference="label-efect"/>
+            <checkbox label="&dnsFlusher.showIcon;" preference="show-icon" oncommand="dnsFlusherOptions.showHideViewElements('dnsflusher_status_img', this.checked);" />
             <spacer height="10"/>
             <hbox>
-                <label value="Change status bar IP color: "/>
+                <label value="&dnsFlusher.statusBarIPColor;"/>
                 <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="dnsFlusherOptions.colorChanged();"/>
             </hbox>
         </groupbox>

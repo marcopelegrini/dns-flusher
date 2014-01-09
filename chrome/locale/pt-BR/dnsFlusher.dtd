@@ -1,0 +1,13 @@
+<!ENTITY dnsFlusher.productName 			"DNS Flusher">
+<!ENTITY dnsFlusher.flush 					"Limpar cache de DNS">
+<!ENTITY dnsFlusher.options 				"Opções">
+
+<!ENTITY dnsFlusher.settings 				"Configurações">
+<!ENTITY dnsFlusher.general 				"Geral">
+
+<!ENTITY dnsFlusher.reloadPage				"Recarregar a pagina depois de limpar o cache de DNS">
+<!ENTITY dnsFlusher.useStatusBarEffect		"Usar efeito na barra de status">
+<!ENTITY dnsFlusher.showIcon				"Mostrar icone na barra de status">
+<!ENTITY dnsFlusher.statusBarIPColor		"Cor do IP na barra de status: ">
+
+<!ENTITY dnsFlusher.flushKeyBind			"L">

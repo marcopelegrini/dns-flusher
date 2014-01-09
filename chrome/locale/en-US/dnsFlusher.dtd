@@ -1,0 +1,13 @@
+<!ENTITY dnsFlusher.productName 			"DNS Flusher">
+<!ENTITY dnsFlusher.flush 					"Flush DNS">
+<!ENTITY dnsFlusher.options 				"Options">
+
+<!ENTITY dnsFlusher.settings 				"Settings">
+<!ENTITY dnsFlusher.general 				"General">
+
+<!ENTITY dnsFlusher.reloadPage				"Reload current page after flush DNS">
+<!ENTITY dnsFlusher.useStatusBarEffect		"Use status bar effect on flush">
+<!ENTITY dnsFlusher.showIcon				"Show status bar icon">
+<!ENTITY dnsFlusher.statusBarIPColor		"Status bar IP color: ">
+
+<!ENTITY dnsFlusher.flushKeyBind			"F">
