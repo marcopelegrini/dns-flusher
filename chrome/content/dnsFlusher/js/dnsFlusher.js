@@ -155,7 +155,9 @@ var dnsFlusher = {
                 ipLabel.value = text;
                 var x = 0;
                 for (var i = 0; i < 10; i++) {
-                    setTimeout(this.changeLabel, 1000 - x, text);
+                    setTimeout(function(value){
+                    	document.getElementById('dnsflusher-label').value = value;
+                    }, 1000 - x, text);
                     var text = text.substring(1);
                     x -= 150;
                 }
@@ -170,10 +172,6 @@ var dnsFlusher = {
         }
         this.reloadByUser = false;
     },
-	
-	changeLabel: function(value){
-		document.getElementById('dnsflusher-label').value = value;
-	},
 	
     cleanTooltip: function(){
         //Remove old tooltips
