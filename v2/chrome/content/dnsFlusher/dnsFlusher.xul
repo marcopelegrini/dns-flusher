@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://dnsFlusher/skin/style.css" type="text/css"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://dnsFlusher/locale/dnsFlusher.dtd">
+
+<overlay id="dnsflusher" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<!-- Utils -->
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/ctech/nsLoader.js" />
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/ctech/preferenceUtils.js" />
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/ctech/browserUtils.js" />
+
+	<!-- DNSFlusher -->
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/manager.js"/>
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/applicationContext.js"/>
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/main.js"/>
+
+	<stringbundleset id="stringbundleset">
+		<stringbundle id="coders.dnsFlusher.string-bundle" src="chrome://dnsFlusher/locale/localization.properties"/>
+	</stringbundleset>
+
+    <statusbar id="status-bar">
+        <statusbarpanel
+        	id="dnsflusher_panel"
+            tooltip="dnsflusher-tooltip"
+        	context="dnsflusher-statepopup"
+        	onclick="coders.dnsFlusher.main.dispatchStatusClick(this, event);">
+
+            <label value="&dnsFlusher.productName;" id="dnsflusher-label"/>
+            <image id="dnsflusher_status_img" />
+            <tooltip id="dnsflusher-tooltip" noautohide="true" orient="vertical" position="before_start" style="padding:2px; display:none;"></tooltip>
+        </statusbarpanel>
+
+        <menupopup id="dnsflusher-statepopup">
+			<menuitem label="&dnsFlusher.flush;" accesskey="&dnsFlusher.flushKeyBind;" oncommand="event.preventDefault(); event.stopPropagation(); coders.dnsFlusher.main.refreshDNS();" />
+			<menuitem label="&dnsFlusher.options;" oncommand="event.preventDefault(); event.stopPropagation(); coders.dnsFlusher.main.openPreferences();" />
+		</menupopup>
+    </statusbar>
+
+	<toolbarpalette id="BrowserToolbarPalette">
+		<toolbarbutton
+				id="dnsflusher_toolbar_button"
+				type="menu-button"
+		        class="toolbarbutton-1 chromeclass-toolbar-additional"
+		        label="&dnsFlusher.productName;"
+		        tooltiptext="&dnsFlusher.flush;"
+		        oncommand="coders.dnsFlusher.main.dispatchStatusClick(this, event);" >
+
+                <menupopup>
+					<menuitem label="&dnsFlusher.flush;" oncommand="event.preventDefault(); event.stopPropagation(); coders.dnsFlusher.main.refreshDNS();" />
+                    <menuitem label="&dnsFlusher.options;" oncommand="event.preventDefault(); event.stopPropagation(); coders.dnsFlusher.main.openPreferences();" />
+                </menupopup>
+		</toolbarbutton>
+	</toolbarpalette>
+</overlay>

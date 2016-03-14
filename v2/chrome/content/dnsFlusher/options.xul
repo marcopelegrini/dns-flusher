@@ -12,12 +12,14 @@
  buttons="accept,cancel"
  type="prefwindow">
 
-	<!-- Utility classes -->    
-    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/utils.js"/>
-    <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/preferenceUtils.js"/>
-	<!-- Option overlay class -->
+	<!-- Utils -->
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/ctech/nsLoader.js" />
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/ctech/browserUtils.js" />
+
+	<!-- Options -->
+	<script type="application/x-javascript" src="chrome://dnsFlusher/content/js/applicationContext.js"/>
     <script type="application/x-javascript" src="chrome://dnsFlusher/content/js/options.js"/>
-    
+
     <prefpane id="prefpane_general" label="&dnsFlusher.general;">
         <preferences>
             <preference id="label-color" name="extensions.dnsFlusher.label-color" type="unichar"/>
@@ -29,11 +31,11 @@
             <caption label="&dnsFlusher.general;"/>
             <checkbox label="&dnsFlusher.reloadPage;" preference="reload-page"/>
             <checkbox label="&dnsFlusher.useStatusBarEffect;" preference="label-efect"/>
-            <checkbox label="&dnsFlusher.showIcon;" preference="show-icon" oncommand="dnsFlusherOptions.showHideViewElements('dnsflusher_status_img', this.checked);" />
+            <checkbox label="&dnsFlusher.showIcon;" preference="show-icon" oncommand="coders.dnsFlusher.options.showHideViewElements('dnsflusher_status_img', this.checked);" />
             <spacer height="10"/>
             <hbox>
                 <label value="&dnsFlusher.statusBarIPColor;"/>
-                <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="dnsFlusherOptions.colorChanged();"/>
+                <colorpicker id="dF-color-picker" preference="label-color" type="button" onchange="coders.dnsFlusher.options.colorChanged();"/>
             </hbox>
         </groupbox>
     </prefpane>

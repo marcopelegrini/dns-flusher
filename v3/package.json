@@ -1,0 +1,15 @@
+{
+  "title": "DNS Flusher",
+  "name": "dnsflusher",
+  "version": "3.0.1",
+  "description": "DNS Flusher",
+  "main": "main.js",
+  "author": "Marco Pelegrini",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "CC",
+  "keywords": [
+    "dns", "flush", "refresh"
+  ]
+}
