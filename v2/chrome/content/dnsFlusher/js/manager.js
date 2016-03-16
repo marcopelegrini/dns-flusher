@@ -11,12 +11,13 @@
 		//Firefox Services
 		dnsService: Components.classes["@mozilla.org/network/dns-service;1"].getService(Components.interfaces.nsIDNSService),
 		networkIoService: Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService),
-		cacheService: Components.classes["@mozilla.org/network/cache-service;1"].getService(Components.interfaces.nsICacheService),
 		threadManager: Components.classes["@mozilla.org/thread-manager;1"].getService(),
 
 		reloadByUser: false,
 		listener: null,
 		actualHost: null,
+
+		networkBranchName: "network.",
 
 		setContext: function(applicationContext){
 			this.ctx = applicationContext;
@@ -185,35 +186,31 @@
 				//If all downloads are stoped or user confirm then proceed
 				if (summary.allHaveStopped || confirm(msg)) {
 					try {
+						//Offline mode
 						this.networkIoService.offline = true;
 
-						var prefNameExpiration = "network.dnsCacheExpiration";
-						var prefNameEntries = "network.dnsCacheEntries";
-						var vExp = this.ctx.preferenceUtils.getInt(prefNameExpiration);
-						var vEntries = this.ctx.preferenceUtils.getInt(prefNameEntries);
+						//Clean cache values
+						var prefNameEntries = "dnsCacheEntries";
+						var prefNameExpiration = "dnsCacheExpiration";
+						var prefNameExpirationGrace = "dnsCacheExpirationGracePeriod"
+						var vEntries = this.disableNetworkProperty(prefNameEntries);
+						var vExp = this.disableNetworkProperty(prefNameExpiration);
+						var vGrace = this.disableNetworkProperty(prefNameExpirationGrace);
 
-						this.ctx.preferenceUtils.setInt(prefNameExpiration, "0");
-						this.ctx.preferenceUtils.setInt(prefNameEntries, "0");
+						//Redefine them
+						this.redefineProperty(prefNameEntries, vEntries);
+						this.redefineProperty(prefNameExpiration, vExp);
+						this.redefineProperty(prefNameExpirationGrace, vGrace);
 
-						if (vExp != null){
-							this.ctx.preferenceUtils.setInt(prefNameExpiration, vExp);
-						}else{
-							this.ctx.preferenceUtils.clear(prefNameExpiration);
-						}
-
-						if (vEntries != null){
-							this.ctx.preferenceUtils.setInt(prefNameEntries, vEntries);
-						}else{
-							this.ctx.preferenceUtils.clear(prefNameEntries);
-						}
-
-						// this.cacheService.evictEntries(Components.interfaces.nsICache.STORE_ANYWHERE);
+						//Clear cache
 						Services.cache2.clear();
+						//Online mode
 						this.networkIoService.offline = false;
 
 						if (this.ctx.preferenceUtils.getBool("reload-page")) {
-							var mainWindow = this.ctx.browserUtils.getBrowserWindow();
-							mainWindow.getBrowser().reload();
+							var browser = this.ctx.browserUtils.getBrowserWindow().getBrowser();
+							// browser.reloadWithFlags(browser.webNavigation.LOAD_FLAGS_BYPASS_CACHE);
+							browser.reload();
 							this.reloadByUser = true;
 						}
 						else {
@@ -226,6 +223,20 @@
 			}).catch(exception => {
 				this.logger.error(exception);
 			})
+		},
+
+		disableNetworkProperty: function(propertyName){
+			var oldValue = this.ctx.preferenceUtils.getInt(propertyName, this.networkBranchName);
+			this.ctx.preferenceUtils.setInt(propertyName, "0", this.networkBranchName);
+			return oldValue;
+		},
+
+		redefineProperty: function(propertyName, value){
+			if (value != null){
+				this.ctx.preferenceUtils.setInt(propertyName, value, this.networkBranchName);
+			}else{
+				this.ctx.preferenceUtils.clear(propertyName, this.networkBranchName);
+			}
 		}
 	}
 })();
